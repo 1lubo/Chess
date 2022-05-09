@@ -14,7 +14,7 @@ class Piece
         @board = board
         @color = player_color        
         @position = coordinates
-        @possible_moves = get_possible_moves(self.class::Legal_moves)
+        #@possible_moves = get_possible_moves(self.class::Legal_moves)
         @num_moves = 0
 
     end
@@ -137,12 +137,17 @@ class Piece
 
     def line_north_clear?(target)
 
-        return true if (position[0] - target[0] - 1) == 0
+        next_to_me = board[position[0] - 1][position[1]]
+
+        if !next_to_me.nil?            
+            return true if (position[0] - target[0] - 1) == 0 && next_to_me.color != color
+        end
                 
         line_north = []
         (1..(position[0] - target[0] - 1)).each do |i|            
             line_north << board[position[0] - i][target[1]]
         end
+        
 
         return line_north.uniq.length == 1 && line_north.uniq[0].nil?
 
@@ -150,8 +155,12 @@ class Piece
 
     def line_northwest_clear?(target)
 
-        return true if (position[0] - target[0] - 1) == 0 &&
-        (target[1] - position[1] - 1) == 0
+        next_to_me = board[position[0] - 1][position[1]+ 1]
+
+        if !next_to_me.nil?
+            return true if (position[0] - target[0] - 1) == 0 &&
+            (target[1] - position[1] - 1) == 0 && next_to_me.color != color
+        end
 
         line_northwest = []
         (1..(position[0] - target[0] -1)).each do |i|
@@ -164,20 +173,27 @@ class Piece
 
     def line_west_clear?(target)
 
-        return true if (target[1] - position[1] - 1) == 0
+        next_to_me = board[position[0]][position[1] + 1]
+
+        if !next_to_me.nil?
+            return true if (target[1] - position[1] - 1) == 0 && next_to_me.color != color
+        end
 
         line_west = []
         (1..(target[1] - position[1] - 1)).each do |i|
             line_west << board[target[0]][position[1] + i]
         end
+        #puts "Line west to #{target} is  #{line_west}"
 
         return line_west.uniq.length == 1 && line_west.uniq[0].nil?
     end
 
     def line_southwest_clear?(target)
 
+        next_to_me = board[position[0] + 1][position[1] + 1]
+
         return true if (target[0] - position[0] - 1) == 0 &&
-        (target[1] - position[1] - 1) == 0
+        (target[1] - position[1] - 1) == 0 && next_to_me.color != color
 
         line_southwest = []
         (1..(target[1] - position[1] - 1)).each do |i|
@@ -189,7 +205,9 @@ class Piece
 
     def line_south_clear?(target)
 
-        return true if (target[0] - position[0] - 1) == 0
+        next_to_me = board[position[0] + 1][position[1]]
+
+        return true if (target[0] - position[0] - 1) == 0 && next_to_me.color != color
 
         line_south = []
         (1..(target[0] - position[0] - 1)).each do |i|
@@ -201,8 +219,10 @@ class Piece
 
     def line_southeast_clear?(target)
 
+        next_to_me = board[position[0] + 1][position[1] - 1]
+
         return true if (target[0] - position[0] - 1) == 0 &&
-        (position[1] - target[1] - 1) == 0
+        (position[1] - target[1] - 1) == 0 && next_to_me.color != color
 
         line_southeast = []
         (1..(position[1] - target[1] - 1)).each do |i|
@@ -214,7 +234,9 @@ class Piece
 
     def line_east_clear?(target)
 
-        return true if (position[1] - target[1] - 1) == 0
+        next_to_me = board[position [0]][position[1] - 1]
+
+        return true if (position[1] - target[1] - 1) == 0 && next_to_me.color != color
 
         line_east = []
         (1..(position[1] - target[1] - 1)).each do |i|
@@ -226,8 +248,9 @@ class Piece
 
     def line_northeast_clear?(target)
 
+        next_to_me = board[position[0] - 1][position[1] - 1]
         return true if (position[0] - target[0] - 1) == 0 &&
-        (position[1] - target[1] - 1) == 0
+        (position[1] - target[1] - 1) == 0 && next_to_me.color != color
 
         line_northeast = []
         (1..(position[0] - target[0] - 1)).each do |i|

@@ -12,11 +12,13 @@ class Piece
     
     def initialize(player_color, coordinates, board)
         @board = board
+        #puts "board has #{board.attribute_names}"
         @color = player_color        
         @position = coordinates
+        #puts "I am #{color} #{type} and my initialiazed position is #{position}"
         #@possible_moves = get_possible_moves(self.class::Legal_moves)
         @num_moves = 0
-
+        
     end
 
     def to_s
@@ -36,28 +38,31 @@ class Piece
         
         next_moves = []        
         legal_moves_array.each { |jump| next_moves << [jump[0] + position[0], jump[1] + position[1]] }
+        next_moves.filter! { |move| not_out_of_bounds(move) }
         
-        return next_moves.filter { |move| not_out_of_bounds(move) }.filter { |move| validate_moves_filter(move)}
+        return next_moves.filter { |move| validate_moves_filter(move)}
         
     end
     
 
     def validate_moves_filter(target)
+        #puts "My position is #{position} and #{target} is #{where_to?(target)}"
         
         target_square = board[target[0]][target[1]]
-                
+        #puts "Target square is empty is #{target_square.nil?}"        
         #return false if possible_moves.include?(target) == false 
         #is target in list of possible moves. Return -1 if not.
         
         return false if !target_square.nil? && target_square.color == color 
         #is target occupied by piece of the same color. Return -2 if yes.
-        
+        #puts where_to?(target)
         
         
         
         case where_to?(target)
             #check the line in the direction of movement. Return -3 if line not empty.
-        when 'N'            
+        when 'N'       
+            #puts "Line north is #{line_north_clear?(target)}"     
             return true if line_north_clear?(target)
             return false
 
@@ -81,7 +86,8 @@ class Piece
             return true if line_southeast_clear?(target)
             return false
 
-        when 'E'            
+        when 'E'      
+            
             return true if line_east_clear?(target)
             return false
 
@@ -116,6 +122,7 @@ class Piece
     end
 
     def moving_south?(target)
+        #puts "#{position}, #{target}"
         return 'S' if position[0] < target[0] && position[1] == target[1]
         false
     end
@@ -136,11 +143,15 @@ class Piece
     end
 
     def line_north_clear?(target)
-
+              
         next_to_me = board[position[0] - 1][position[1]]
-
+        
         if !next_to_me.nil?            
             return true if (position[0] - target[0] - 1) == 0 && next_to_me.color != color
+
+        elsif next_to_me.nil?
+             
+            return true if (position[0] - target[0] - 1) == 0
         end
                 
         line_north = []
@@ -160,6 +171,9 @@ class Piece
         if !next_to_me.nil?
             return true if (position[0] - target[0] - 1) == 0 &&
             (target[1] - position[1] - 1) == 0 && next_to_me.color != color
+        elsif next_to_me.nil?
+            return true if (position[0] - target[0] - 1) == 0 &&
+            (target[1] - position[1] - 1) == 0
         end
 
         line_northwest = []
@@ -177,13 +191,15 @@ class Piece
 
         if !next_to_me.nil?
             return true if (target[1] - position[1] - 1) == 0 && next_to_me.color != color
+        elsif next_to_me.nil?
+            return true if (target[1] - position[1] - 1) == 0
         end
 
         line_west = []
         (1..(target[1] - position[1] - 1)).each do |i|
             line_west << board[target[0]][position[1] + i]
         end
-        #puts "Line west to #{target} is  #{line_west}"
+        
 
         return line_west.uniq.length == 1 && line_west.uniq[0].nil?
     end
@@ -192,8 +208,13 @@ class Piece
 
         next_to_me = board[position[0] + 1][position[1] + 1]
 
-        return true if (target[0] - position[0] - 1) == 0 &&
-        (target[1] - position[1] - 1) == 0 && next_to_me.color != color
+        if !next_to_me.nil?
+            return true if (target[0] - position[0] - 1) == 0 &&
+            (target[1] - position[1] - 1) == 0 && next_to_me.color != color
+        elsif next_to_me.nil?
+            return true if (target[0] - position[0] - 1) == 0 &&
+            (target[1] - position[1] - 1) == 0
+        end
 
         line_southwest = []
         (1..(target[1] - position[1] - 1)).each do |i|
@@ -204,10 +225,14 @@ class Piece
     end
 
     def line_south_clear?(target)
-
+        
         next_to_me = board[position[0] + 1][position[1]]
 
-        return true if (target[0] - position[0] - 1) == 0 && next_to_me.color != color
+        if !next_to_me.nil?
+            return true if (target[0] - position[0] - 1) == 0 && next_to_me.color != color
+        elsif next_to_me.nil?
+            return true if (target[0] - position[0] - 1) == 0
+        end
 
         line_south = []
         (1..(target[0] - position[0] - 1)).each do |i|
@@ -221,8 +246,14 @@ class Piece
 
         next_to_me = board[position[0] + 1][position[1] - 1]
 
-        return true if (target[0] - position[0] - 1) == 0 &&
-        (position[1] - target[1] - 1) == 0 && next_to_me.color != color
+        if !next_to_me.nil?
+            return true if (target[0] - position[0] - 1) == 0 &&
+            (position[1] - target[1] - 1) == 0 && next_to_me.color != color
+        elsif
+            next_to_me.nil?
+            return true if (target[0] - position[0] - 1) == 0 &&
+            (position[1] - target[1] - 1) == 0
+        end
 
         line_southeast = []
         (1..(position[1] - target[1] - 1)).each do |i|
@@ -235,9 +266,16 @@ class Piece
     def line_east_clear?(target)
 
         next_to_me = board[position [0]][position[1] - 1]
+        
+        
+        if !next_to_me.nil?
 
-        return true if (position[1] - target[1] - 1) == 0 && next_to_me.color != color
-
+            return true if (position[1] - target[1] - 1) == 0 && next_to_me.color != color
+        elsif next_to_me.nil?
+            
+            return true if (position[1] - target[1] - 1) == 0
+        end
+        
         line_east = []
         (1..(position[1] - target[1] - 1)).each do |i|
             line_east << board[position[0]][position[1] - i]
@@ -249,8 +287,14 @@ class Piece
     def line_northeast_clear?(target)
 
         next_to_me = board[position[0] - 1][position[1] - 1]
-        return true if (position[0] - target[0] - 1) == 0 &&
-        (position[1] - target[1] - 1) == 0 && next_to_me.color != color
+
+        if !next_to_me.nil?
+            return true if (position[0] - target[0] - 1) == 0 &&
+            (position[1] - target[1] - 1) == 0 && next_to_me.color != color
+        elsif next_to_me.nil?
+            return true if (position[0] - target[0] - 1) == 0 &&
+            (position[1] - target[1] - 1) == 0
+        end
 
         line_northeast = []
         (1..(position[0] - target[0] - 1)).each do |i|
@@ -274,28 +318,30 @@ class Piece
 end
 
 class King < Piece
-    attr_accessor :num_moves
+    attr_accessor :color, :type, :position, :possible_moves, :legal_moves, :num_moves, :board 
 
     Legal_moves = [[0, -1], [-1, -1], [-1, 0], [-1, 1], [0, 1], [1, 1], [1, 0], [1, -1]]
 
     def initialize(player_color, coordinates, board)
-        super
-
+        super(player_color, coordinates, board)
+        board[coordinates[0]][coordinates[1]] = self
         @type = 'king'
-              
+        @possible_moves = nil              
         
     end
 
     def refresh_possible_moves
         next_moves = []        
         Legal_moves.each { |jump| next_moves << [jump[0] + position[0], jump[1] + position[1]] }
-        
-        @possible_moves = next_moves.filter { |move| not_out_of_bounds(move) }
+        next_moves.filter! { |move| not_out_of_bounds(move) }
+        @possible_moves = next_moves.filter { |move| not_out_of_bounds(move) }        
+        @possible_moves = possible_moves.filter { |move| validate_moves_filter(move)}
     end
 
 end
 
 class Queen < Piece
+    attr_accessor :color, :type, :position, :possible_moves, :legal_moves, :num_moves, :board 
 
 
     Legal_moves = [[1, 0], [2, 0], [3, 0], [4, 0], [5, 0], [6, 0], [7, 0],
@@ -308,23 +354,26 @@ class Queen < Piece
                     [-1, 1], [-2, 2], [-3, 3], [-4, 4], [-5, 5], [-6, 6], [-7, 7]]
 
     def initialize(player_color, coordinates, board)
-        super
+        super(player_color, coordinates, board)
 
+        board[coordinates[0]][coordinates[1]] = self
         @type = 'queen'
+        @possible_moves = nil
     end
 
     def refresh_possible_moves
         next_moves = []        
         Legal_moves.each { |jump| next_moves << [jump[0] + position[0], jump[1] + position[1]] }
-        
-        @possible_moves = next_moves.filter { |move| not_out_of_bounds(move) }
+        next_moves.filter! { |move| not_out_of_bounds(move) }
+        @possible_moves = next_moves.filter { |move| not_out_of_bounds(move) }        
+        @possible_moves = possible_moves.filter { |move| validate_moves_filter(move)}
     end
     
 end
 
 class Rook < Piece
 
-    attr_accessor :num_moves
+    attr_accessor :color, :type, :position, :possible_moves, :legal_moves, :num_moves, :board 
 
     Legal_moves = [[1, 0], [2, 0], [3, 0], [4, 0], [5, 0], [6, 0], [7, 0],
                     [-1, 0], [-2, 0], [-3, 0], [-4, 0], [-5, 0], [-6, 0], [-7, 0],
@@ -332,22 +381,25 @@ class Rook < Piece
                 [0, -1], [0, -2], [0, -3], [0, -4], [0, -5], [0, -6], [0, -7]]
 
     def initialize(player_color, coordinates, board)
-        super
-
-        @type = 'rook'
+        super(player_color, coordinates, board)
+        board[coordinates[0]][coordinates[1]] = self
         
+        @type = 'rook'
+        @possible_moves = nil
     end
 
     def refresh_possible_moves
         next_moves = []        
         Legal_moves.each { |jump| next_moves << [jump[0] + position[0], jump[1] + position[1]] }
-        
-        @possible_moves = next_moves.filter { |move| not_out_of_bounds(move) }
+        next_moves.filter! { |move| not_out_of_bounds(move) }
+        @possible_moves = next_moves.filter { |move| not_out_of_bounds(move) }        
+        @possible_moves = possible_moves.filter { |move| validate_moves_filter(move)}
     end
 
 end
 
 class Bishop < Piece
+    attr_accessor :color, :type, :position, :possible_moves, :legal_moves, :num_moves, :board 
 
     Legal_moves = [[1, 1], [2, 2], [3, 3], [4, 4], [5, 5], [6, 6], [7, 7],
     [-1, -1], [-2, -2], [-3, -3], [-4, -4], [-5, -5], [-6, -6], [-7, -7],
@@ -355,46 +407,54 @@ class Bishop < Piece
     [-1, 1], [-2, 2], [-3, 3], [-4, 4], [-5, 5], [-6, 6], [-7, 7]]
 
     def initialize(player_color, coordinates, board)
-        super
-
+        super(player_color, coordinates, board)
+        board[coordinates[0]][coordinates[1]] = self
         @type = 'bishop'
+        @possible_moves = nil
     end
 
     def refresh_possible_moves
         next_moves = []        
         Legal_moves.each { |jump| next_moves << [jump[0] + position[0], jump[1] + position[1]] }
-        
-        @possible_moves = next_moves.filter { |move| not_out_of_bounds(move) }
+
+        @possible_moves = next_moves.filter { |move| not_out_of_bounds(move) }        
+        @possible_moves = possible_moves.filter { |move| validate_moves_filter(move)}
     end
+
 end
 
 class Knight < Piece
+    attr_accessor :color, :type, :position, :possible_moves, :legal_moves, :num_moves, :board 
 
     Legal_moves = [[2, 1], [2, -1], [1, -2], [-1, -2], [-2, -1], [-2, 1], [-1, 2], [1, 2]]
 
     def initialize(player_color, coordinates, board)
-        super
-
+        super(player_color, coordinates, board)
+        board[coordinates[0]][coordinates[1]] = self
         @type = 'knight'
+        @possible_moves = nil
     end
 
     def refresh_possible_moves
         next_moves = []        
         Legal_moves.each { |jump| next_moves << [jump[0] + position[0], jump[1] + position[1]] }
-        
         @possible_moves = next_moves.filter { |move| not_out_of_bounds(move) }
+        
+        @possible_moves = possible_moves.filter { |move| validate_moves_filter(move)}
+        
     end
 
-    def validate_move(target) 
-                
-        target_square = @board.board[target[0]][target[1]]
-                
-        return -1 if possible_moves.include?(target) == false 
+    def validate_moves_filter(target) 
+               
+        target_square = board[target[0]][target[1]]
+        
+        return false if possible_moves.include?(target) == false 
         #is target in list of possible moves. Return -1 if not.
         
-        return -2 if !target_square.nil? && target_square.color == color 
+        return false if !target_square.nil? && target_square.color == color 
         #is target occupied by piece of the same color. Return -2 if yes.
-
+        
+        true
         # Knight can leap over other pieces. No other validation necessary.
     end
 
@@ -402,49 +462,50 @@ class Knight < Piece
 end
 
 class Pawn < Piece
-    attr_accessor :num_moves   
+    attr_accessor :color, :type, :position, :possible_moves, :legal_moves, :num_moves, :board 
 
     def initialize(player_color, coordinates, board)  
         @board = board      
         @color = player_color        
         @position = coordinates
+        board[coordinates[0]][coordinates[1]] = self
         @type = 'pawn'        
-        #@possible_moves = get_possible_moves
+        @possible_moves = nil
         @num_moves = 0
 
     end
-
-    #def get_possible_moves
-    #    
-    #    next_moves = []   
-#
-    #    if color == 'white' && num_moves == 0 
-    #        next_moves << [position[0] -1 , position[1]]
-    #        next_moves << [position[0] -2 , position[1]]
-#
-    #    elsif color == 'white' && num_moves > 0
-    #        next_moves << [position[0] -1 , position[1]]
-#
-    #    elsif color == 'black' && num_moves == 0
-    #        next_moves << [position[0] +1 , position[1]]
-    #        next_moves << [position[0] +2 , position[1]]
-#
-    #    elsif color == 'black' && num_moves > 0
-    #        next_moves << [position[0] +1 , position[1]]
-    #    end
-#
-    #    return next_moves.filter { |move| not_out_of_bounds(move) }
-    #    
-    #end
 
     def refresh_possible_moves
         
         next_moves = []   
 
-        color == 'white' ? next_moves << [position[0] -1 , position[1]] : next_moves << [position[0] +1 , position[1]]
-       
+        if color == 'white' && num_moves == 0 
+            next_moves << [position[0] -1 , position[1]]
+            next_moves << [position[0] -2 , position[1]]
+
+        elsif color == 'white' && num_moves > 0
+            next_moves << [position[0] -1 , position[1]]
+
+        elsif color == 'black' && num_moves == 0
+            next_moves << [position[0] +1 , position[1]]
+            next_moves << [position[0] +2 , position[1]]
+
+        elsif color == 'black' && num_moves > 0
+            next_moves << [position[0] +1 , position[1]]
+        end
+
         @possible_moves = next_moves.filter { |move| not_out_of_bounds(move) }
+        
     end
+
+    #def refresh_possible_moves
+    #    
+    #    next_moves = []   
+#
+    #    color == 'white' ? next_moves << [position[0] -1 , position[1]] : next_moves << [position[0] +1 , position[1]]
+    #   
+    #    @possible_moves = next_moves.filter { |move| not_out_of_bounds(move) }
+    #end
 
 
 end

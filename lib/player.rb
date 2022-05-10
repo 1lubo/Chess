@@ -1,29 +1,82 @@
 require_relative './board.rb'
+require_relative './modules.rb'
 
 class Player
 
-    attr_accessor :number
+    include NotationTranslation
+    attr_accessor :color, :board
 
-    def initialize(number, board)
-        @name = name
-        @number = number    
+    def initialize(color, board)
+        @color = color
         @board = board    
     end
 
-    def player_input()
+    def get_input(info)
         loop do
-          user_input = gets.chomp          
-            if user_input.match?(/^[a-h]{1}[1-8]{1}$/)
-                column_empty = board.check_column(user_input.to_i)
-                if column_empty
-                    return user_input.to_i                
-                else
-                    puts "Column us full. Please make another choice."
-                end
-            else
-                puts "Input error! Please enter a number between 1 and 7."
-            end
+            puts info
+            user_input = gets.chomp.downcase   
+
+            return user_input if user_input.match?(/^[a-h]{1}[1-8]{1}$/)                
+  
+            puts "Input error! Please enter a file (a - h) and rank (1 - 8)."            
         end
     end    
+
+    def get_piece  
+        info = "Enter the coordinates of the piece you want to move."
+        selection = nil
+
+        until selection do
+
+            input = get_input(info)
+            coordinates = notation_to_coordinates(input)
+            selection = board.board[coordinates[0]][coordinates[1]]
+
+            if selection.nil? # selected square is empty
+                puts "Selected sqaure is empty."
+                next
+            else 
+                selection.refresh_possible_moves
+            end
+
+            if selection.color != color # selected piece is opposite color
+                puts "Selected piece is of opposite color."
+                selection = nil
+                next
+            end
+
+            if selection.possible_moves.empty?
+                puts "This piece does not have any valid moves."
+                selection = nil
+                next
+            else
+                selection.refresh_possible_moves
+            end
+        end
+
+        
+        return selection
+    end
+
+    def get_target(piece)
+        info = "Enter target coordinates"
+        target = nil       
+
+        until target do
+            input = get_input(info)
+            target = notation_to_coordinates(input)
+
+            if !piece.possible_moves.include?(target)
+                puts "Invalid coordinates."
+                target = nil
+                next
+            else
+                return target
+            end
+        end
+
+    end
+
+
 
 end

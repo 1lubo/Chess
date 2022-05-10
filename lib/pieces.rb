@@ -1,7 +1,7 @@
 
 class Piece
     
-    attr_accessor :color, :type, :position, :possible_moves, :legal_moves, :num_moves, :board 
+    attr_accessor :color, :type, :position, :possible_moves, :legal_moves, :num_moves, :board, :highlight
 
     Symbols = { 'b' => {"king" => "\u{2654}", "queen" => "\u{2655}", "rook" => "\u{2656}", "bishop" => "\u{2657}", "knight" => "\u{2658}",
     "pawn" => "\u{2659}"}, 
@@ -18,6 +18,7 @@ class Piece
         #puts "I am #{color} #{type} and my initialiazed position is #{position}"
         #@possible_moves = get_possible_moves(self.class::Legal_moves)
         @num_moves = 0
+        @highlight = false
         
     end
 
@@ -46,19 +47,14 @@ class Piece
     
 
     def validate_moves_filter(target)
-        #puts "My position is #{position} and #{target} is #{where_to?(target)}"
+        
         
         target_square = board[target[0]][target[1]]
-        #puts "Target square is empty is #{target_square.nil?}"        
-        #return false if possible_moves.include?(target) == false 
-        #is target in list of possible moves. Return -1 if not.
-        
+                                
         return false if !target_square.nil? && target_square.color == color 
         #is target occupied by piece of the same color. Return -2 if yes.
-        #puts where_to?(target)
         
-        
-        
+                
         case where_to?(target)
             #check the line in the direction of movement. Return -3 if line not empty.
         when 'N'       
@@ -122,7 +118,6 @@ class Piece
     end
 
     def moving_south?(target)
-        #puts "#{position}, #{target}"
         return 'S' if position[0] < target[0] && position[1] == target[1]
         false
     end

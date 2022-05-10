@@ -8,9 +8,9 @@ class Board
     Symbols = { 'b' => {"king" => "\u{2654}", "queen" => "\u{2655}", "rook" => "\u{2656}", "bishop" => "\u{2657}", "knight" => "\u{2658}",
     "pawn" => "\u{2659}"}, 
     'w' =>  {"king" => "\u{265A}", "queen" => "\u{265B}", "rook" => "\u{265C}", "bishop" => "\u{265D}", "knight" => "\u{265E}",
-    "pawn" => "\u{265F}"} }      
+    "pawn" => "\u{265F}"}, 'pm' => "\u{2727}" }      
 
-    
+    Pm = "\u{2727}"
 
     def initialize
         @board = Array.new(8) {Array.new(8, nil)}
@@ -26,7 +26,7 @@ class Board
         puts draw_letters_row
     end
 
-    def clear_board
+    def reset_board
         @board = Array.new(8) {Array.new(8, nil)}
         @captured_pieces = []
         populate_black
@@ -38,21 +38,57 @@ class Board
         row_string = ""
         array_row.each_with_index do |item, index|
             if index.even?
-                item.nil? ? row_string += " " + " ".blue : row_string += " #{item.to_s.blue}"
-            else                
-                item.nil? ? row_string += " " + " ".black : row_string += " #{item.to_s.black}"
+                if item.nil?
+                    row_string += " " + " ".blue 
+                elsif item.class != String
+                    item.highlight ? row_string += " #{item.to_s.highlight}" : row_string += " #{item.to_s.blue}"
+                else
+                    row_string += " #{item.to_s.blue}"
+                end
+            else   
+                if item.nil?
+                    row_string += " " + " ".black 
+                elsif item.class != String
+                    item.highlight  ? row_string += " #{item.to_s.highlight}" : row_string += " #{item.to_s.black}"
+                else
+                    row_string += " #{item.to_s.black}"
+                end
             end
         end
         return row_string += "\n"
     end
 
+    #def draw_odd_row(array_row)
+    #    row_string = ""
+    #    array_row.each_with_index do |item, index|
+    #        if index.even?
+    #            item.nil? ? row_string += " " + " ".black : row_string += " #{item.to_s.black}"
+    #        else                
+    #            item.nil? ? row_string += " " + " ".blue : row_string += " #{item.to_s.blue}"
+    #        end
+    #    end
+    #    return row_string += "\n"
+    #end
+
     def draw_odd_row(array_row)
         row_string = ""
         array_row.each_with_index do |item, index|
             if index.even?
-                item.nil? ? row_string += " " + " ".black : row_string += " #{item.to_s.black}"
-            else                
-                item.nil? ? row_string += " " + " ".blue : row_string += " #{item.to_s.blue}"
+                if item.nil?
+                    row_string += " " + " ".black
+                elsif item.class != String
+                    item.highlight ? row_string += " #{item.to_s.highlight}" : row_string += " #{item.to_s.black}"
+                else
+                    row_string += " #{item.to_s.black}"
+                end
+            else   
+                if item.nil?
+                    row_string += " " + " ".blue
+                elsif item.class != String
+                    item.highlight ? row_string += " #{item.to_s.highlight}" : row_string += " #{item.to_s.blue}"
+                else
+                    row_string += " #{item.to_s.blue}"
+                end
             end
         end
         return row_string += "\n"
@@ -99,8 +135,9 @@ class Board
     end
 
     def move_piece(piece, target)
-
+        
         starting_square = piece.position
+        
         target_square = board[target[0]][target[1]] 
 
         if !target_square.nil?
@@ -114,6 +151,33 @@ class Board
         board[starting_square[0]][starting_square[1]] = nil
 
 
+    end
+
+    def add_possible_moves(piece)
+        
+        piece.possible_moves.each do |move|
+            
+            if  board[move[0]][move[1]].nil?
+                board[move[0]][move[1]] = Pm
+                
+            else
+                board[move[0]][move[1]].highlight = true
+            end
+        end
+        
+                
+    end
+
+    def remove_possible_moves(piece)
+
+        piece.possible_moves.each do |move| 
+            
+            if  board[move[0]][move[1]] == Pm
+                board[move[0]][move[1]] = nil
+            elsif !board[move[0]][move[1]].nil?
+                board[move[0]][move[1]].highlight = false
+            end
+        end
     end
 end
 

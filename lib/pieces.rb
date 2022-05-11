@@ -441,7 +441,7 @@ class Pawn < Piece
         next_moves << [position[0] - 1, position[1] + 1]
       end
 
-    elsif color == 'white' && num_moves > 0
+    elsif color == 'white' && num_moves.positive?
       next_moves << [position[0] - 1, position[1]]
 
       if !board[position[0] - 1][position[1] - 1].nil? &&
@@ -464,7 +464,7 @@ class Pawn < Piece
         next_moves << [position[0] + 1, position[1] + 1]
       end
 
-    elsif color == 'black' && num_moves > 0
+    elsif color == 'black' && num_moves.positive?
       next_moves << [position[0] + 1, position[1]]
 
       if !board[position[0] + 1][position[1] - 1].nil? &&

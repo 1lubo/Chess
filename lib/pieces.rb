@@ -14,10 +14,9 @@ class Piece
 
   def initialize(player_color, coordinates, board)
     @board = board
-    # puts "board has #{board.attribute_names}"
     @color = player_color
     @position = coordinates
-    # puts "I am #{color} #{type} and my initialiazed position is #{position}"
+
     # @possible_moves = get_possible_moves(self.class::Legal_moves)
     @num_moves = 0
     @highlight = false
@@ -45,15 +44,12 @@ class Piece
   end
 
   def validate_moves_filter(target)
-    puts "I am #{type} using the validate moves filter to check #{target}"
     target_square = board[target[0]][target[1]]
 
     return false if !target_square.nil? && target_square.color == color
 
-    # is target occupied by piece of the same color. Return -2 if yes.
-
     case where_to?(target)
-    # check the line in the direction of movement. Return -3 if line not empty.
+
     when 'N'
       return true if line_north_clear?(target)
 
@@ -140,7 +136,6 @@ class Piece
       end
 
     elsif next_to_me.nil?
-
       return true if (position[0] - target[0] - 1).zero?
     end
 
@@ -248,13 +243,12 @@ class Piece
   end
 
   def line_east_clear?(target)
-    # puts "I am #{type} calling line east clear with #{target}"
-    next_to_me = board[position [0]][position[1] - 1]
+    next_to_me = board[position[0]][position[1] - 1]
 
     if !next_to_me.nil?
       if (position[1] - target[1] - 1).zero? && next_to_me.color != color
         return true
-        end
+      end
 
     elsif next_to_me.nil?
       return true if (position[1] - target[1] - 1).zero?
@@ -309,9 +303,7 @@ class King < Piece
   def refresh_possible_moves
     next_moves = []
     LEGAL_MOVES.each { |jump| next_moves << [jump[0] + position[0], jump[1] + position[1]] }
-    next_moves.filter! { |move| not_out_of_bounds(move) }
-    @possible_moves = next_moves.filter { |move| not_out_of_bounds(move) }
-    @possible_moves = possible_moves.filter { |move| validate_moves_filter(move) }
+    @possible_moves = next_moves.filter { |move| not_out_of_bounds(move) }.filter { |move| validate_moves_filter(move) }
   end
 
   def castling
@@ -342,9 +334,7 @@ class Queen < Piece
   def refresh_possible_moves
     next_moves = []
     LEGAL_MOVES.each { |jump| next_moves << [jump[0] + position[0], jump[1] + position[1]] }
-    next_moves.filter! { |move| not_out_of_bounds(move) }
-    @possible_moves = next_moves.filter { |move| not_out_of_bounds(move) }
-    @possible_moves = possible_moves.filter { |move| validate_moves_filter(move) }
+    @possible_moves = next_moves.filter { |move| not_out_of_bounds(move) }.filter { |move| validate_moves_filter(move) }
   end
 end
 
@@ -367,9 +357,7 @@ class Rook < Piece
   def refresh_possible_moves
     next_moves = []
     LEGAL_MOVES.each { |jump| next_moves << [jump[0] + position[0], jump[1] + position[1]] }
-    next_moves.filter! { |move| not_out_of_bounds(move) }
-    @possible_moves = next_moves.filter { |move| not_out_of_bounds(move) }
-    @possible_moves = possible_moves.filter { |move| validate_moves_filter(move) }
+    @possible_moves = next_moves.filter { |move| not_out_of_bounds(move) }.filter { |move| validate_moves_filter(move) }
   end
 end
 
@@ -391,9 +379,7 @@ class Bishop < Piece
   def refresh_possible_moves
     next_moves = []
     LEGAL_MOVES.each { |jump| next_moves << [jump[0] + position[0], jump[1] + position[1]] }
-
-    @possible_moves = next_moves.filter { |move| not_out_of_bounds(move) }
-    @possible_moves = possible_moves.filter { |move| validate_moves_filter(move) }
+    @possible_moves = next_moves.filter { |move| not_out_of_bounds(move) }.filter { |move| validate_moves_filter(move) }
   end
 end
 
@@ -412,9 +398,7 @@ class Knight < Piece
   def refresh_possible_moves
     next_moves = []
     LEGAL_MOVES.each { |jump| next_moves << [jump[0] + position[0], jump[1] + position[1]] }
-    @possible_moves = next_moves.filter { |move| not_out_of_bounds(move) }
-
-    @possible_moves = possible_moves.filter { |move| validate_moves_filter(move) }
+    @possible_moves = next_moves.filter { |move| not_out_of_bounds(move) }.filter { |move| validate_moves_filter(move) }
   end
 
   def validate_moves_filter(target)
@@ -424,8 +408,6 @@ class Knight < Piece
     # is target in list of possible moves. Return -1 if not.
 
     return false if !target_square.nil? && target_square.color == color
-
-    # is target occupied by piece of the same color. Return -2 if yes.
 
     true
     # Knight can leap over other pieces. No other validation necessary.
@@ -496,13 +478,4 @@ class Pawn < Piece
 
     @possible_moves = next_moves.filter { |move| not_out_of_bounds(move) }
   end
-
-  # def refresh_possible_moves
-  #
-  #    next_moves = []
-  #
-  #    color == 'white' ? next_moves << [position[0] -1 , position[1]] : next_moves << [position[0] +1 , position[1]]
-  #
-  #    @possible_moves = next_moves.filter { |move| not_out_of_bounds(move) }
-  # end
 end

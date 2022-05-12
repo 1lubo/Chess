@@ -21,7 +21,7 @@ class Board
 
   def to_json(*_args)
     {
-      'pieces' => @board,
+      'pieces' => @board.flatten.compact,
       'captured_pieces' => @captured_pieces
 
     }.to_json

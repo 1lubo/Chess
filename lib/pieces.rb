@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'json'
+
 class Piece
   attr_accessor :color, :type, :position, :possible_moves, :legal_moves, :num_moves, :board, :highlight
 
@@ -16,14 +18,19 @@ class Piece
     @board = board
     @color = player_color
     @position = coordinates
-
-    # @possible_moves = get_possible_moves(self.class::Legal_moves)
     @num_moves = 0
     @highlight = false
   end
 
   def to_s
     SYMBOLS[color[0].to_s][type.to_s]
+  end
+
+  def to_json(*_args)
+    {
+      'type' => self.class.name,
+      'color' => @color, 'position' => @position, 'num_moves' => @num_moves
+    }.to_json
   end
 
   def not_out_of_bounds(coordinates)
@@ -288,6 +295,7 @@ class Piece
   end
 end
 
+# sub-class for the King piece
 class King < Piece
   attr_accessor :color, :type, :position, :possible_moves, :LEGAL_MOVES, :num_moves, :board
 
@@ -311,6 +319,7 @@ class King < Piece
   end
 end
 
+# sub-class for the Queen piece
 class Queen < Piece
   attr_accessor :color, :type, :position, :possible_moves, :legal_moves, :num_moves, :board
 
@@ -338,6 +347,7 @@ class Queen < Piece
   end
 end
 
+# sub-class for the Rook piece
 class Rook < Piece
   attr_accessor :color, :type, :position, :possible_moves, :legal_moves, :num_moves, :board
 
@@ -361,6 +371,7 @@ class Rook < Piece
   end
 end
 
+# sub-class for the Bishop piece
 class Bishop < Piece
   attr_accessor :color, :type, :position, :possible_moves, :legal_moves, :num_moves, :board
 
@@ -383,6 +394,7 @@ class Bishop < Piece
   end
 end
 
+# sub-class for the Knight piece
 class Knight < Piece
   attr_accessor :color, :type, :position, :possible_moves, :legal_moves, :num_moves, :board
 
@@ -398,22 +410,26 @@ class Knight < Piece
   def refresh_possible_moves
     next_moves = []
     LEGAL_MOVES.each { |jump| next_moves << [jump[0] + position[0], jump[1] + position[1]] }
-    @possible_moves = next_moves.filter { |move| not_out_of_bounds(move) }.filter { |move| validate_moves_filter(move) }
+    @possible_moves = next_moves.filter { |move| not_out_of_bounds(move) }
+    @possible_moves = next_moves.filter { |move| validate_moves_filter(move) }
   end
 
   def validate_moves_filter(target)
-    target_square = board[target[0]][target[1]]
+    # target_square = board[target[0]][target[1]]
 
     return false if possible_moves.include?(target) == false
     # is target in list of possible moves. Return -1 if not.
 
-    return false if !target_square.nil? && target_square.color == color
+    if !board[target[0]][target[1]].nil? && board[target[0]][target[1]].color == color
+      return false
+    end
 
     true
     # Knight can leap over other pieces. No other validation necessary.
   end
 end
 
+# sub-class for the Pawn piece
 class Pawn < Piece
   attr_accessor :color, :type, :position, :possible_moves, :legal_moves, :num_moves, :board
 

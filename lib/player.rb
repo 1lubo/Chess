@@ -40,7 +40,7 @@ class Player
       end
 
       coordinates = notation_to_coordinates(input)
-      # coordinates = notation_to_coordinates(input)
+
       selection = board.board[coordinates[0]][coordinates[1]]
 
       if selection.nil? # selected square is empty
@@ -81,7 +81,6 @@ class Player
       end
 
       target = notation_to_coordinates(input)
-      # target = notation_to_coordinates(input)
 
       if !piece.possible_moves.include?(target)
         puts 'Invalid coordinates.'

@@ -162,4 +162,13 @@ class Board
       end
     end
   end
+
+  def populate_board_from_save(pieces)
+    pieces.each do |piece|
+      clazz = Object.const_get(piece['type'])
+      color = piece['color']
+      position = piece['position']
+      clazz.new(color, position, board)
+    end
+  end
 end

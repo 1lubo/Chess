@@ -16,8 +16,6 @@ class Board
 
   def initialize
     @board = Array.new(8) { Array.new(8, nil) }
-    # populate_black
-    # populate_white
     @captured_pieces = []
   end
 
@@ -27,10 +25,6 @@ class Board
       'captured_pieces' => @captured_pieces
 
     }.to_json
-  end
-
-  def self.json_create(o)
-    new(o['data']['board'], o['captured_pieces'])
   end
 
   def draw_board

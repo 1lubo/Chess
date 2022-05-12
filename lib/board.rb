@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'json'
 require_relative './colors.rb'
 require_relative './pieces.rb'
@@ -15,16 +16,21 @@ class Board
 
   def initialize
     @board = Array.new(8) { Array.new(8, nil) }
-    populate_black
-    populate_white
+    # populate_black
+    # populate_white
     @captured_pieces = []
   end
 
-  def to_json(a*)
+  def to_json(*_args)
     {
-      "json_class" =&gt; self.class.name,
-      "data"      =&gt; {"board" =&gt; @board, "captured_pieces" =&gt; @captured_pieces}
+      'pieces' => @board,
+      'captured_pieces' => @captured_pieces
+
     }.to_json
+  end
+
+  def self.json_create(o)
+    new(o['data']['board'], o['captured_pieces'])
   end
 
   def draw_board

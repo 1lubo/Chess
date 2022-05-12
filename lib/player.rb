@@ -5,19 +5,22 @@ require_relative './modules.rb'
 
 class Player
   include NotationTranslation
-  attr_accessor :color, :board
+  attr_accessor :color, :board, :interrupt
 
   def initialize(color, board)
     @color = color
     @board = board
+    @interrupt = false
   end
 
   def get_input(info)
     loop do
       puts info
+      puts "Press 'Q' to quit without saving or 'S' to save and quit."
       user_input = gets.chomp.downcase
 
-      return user_input if user_input.match?(/^[a-h]{1}[1-8]{1}$/)
+      return user_input if user_input.match?(/^[a-h]{1}[1-8]{1}$/) ||
+                           user_input.match?(/[qs]{1}$/)
 
       puts 'Input error! Please enter a file (a - h) and rank (1 - 8).'
     end
@@ -30,7 +33,14 @@ class Player
     until selection
 
       input = get_input(info)
+
+      if input.length < 2
+        @interrupt = input
+        return input
+      end
+
       coordinates = notation_to_coordinates(input)
+      # coordinates = notation_to_coordinates(input)
       selection = board.board[coordinates[0]][coordinates[1]]
 
       if selection.nil? # selected square is empty
@@ -64,7 +74,14 @@ class Player
 
     until target
       input = get_input(info)
+
+      if input.length < 2
+        @interrupt = input
+        return input
+      end
+
       target = notation_to_coordinates(input)
+      # target = notation_to_coordinates(input)
 
       if !piece.possible_moves.include?(target)
         puts 'Invalid coordinates.'
